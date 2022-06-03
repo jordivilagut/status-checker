@@ -23,9 +23,11 @@ func main() {
 		go checkStatus(site, c)
 	}
 
-	for check := range c {
-		time.Sleep(2 * time.Second)
-		go checkStatus(check.Url, c)
+	for wc := range c {
+		go func(check websiteCheck) {
+			time.Sleep(2 * time.Second)
+			checkStatus(check.Url, c)
+		}(wc)
 	}
 }
 
