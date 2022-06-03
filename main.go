@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"time"
 )
 
 var sites = []string{
@@ -22,13 +23,15 @@ func main() {
 		go checkStatus(site, c)
 	}
 
-	for i := 0; i < len(sites); i++ {
-		check := <-c
-		check.print()
+	for check := range c {
+		time.Sleep(2 * time.Second)
+		go checkStatus(check.Url, c)
 	}
 }
 
 func checkStatus(site string, c chan websiteCheck) {
 	response, err := http.Get(site)
-	c <- websiteCheck{Url: site, StatusCode: statusCode(response), Error: err}
+	check := websiteCheck{Url: site, StatusCode: statusCode(response), Error: err}
+	check.print()
+	c <- check
 }
